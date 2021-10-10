@@ -1,11 +1,14 @@
 // lab01.cpp : Defines the entry point for the application.
 //
-
+#include <iostream>
 #include "framework.h"
 #include "lab01.h"
-
+#include "windows.h"
 #define MAX_LOADSTRING 100
 
+
+BOOL moveText = true;
+INT x = 100;
 // Global Variables:
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
@@ -16,6 +19,7 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -107,6 +111,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
+   SetTimer(hWnd, 120, 100, NULL);
 
    return TRUE;
 }
@@ -137,6 +142,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
+            case ID_SUBMENU_START:
+                moveText = true;
+                break;
+            case ID_SUBMENU_STOP:
+
+                moveText = false;
+                break;
+            
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -147,15 +160,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
+            LPCWSTR text = L"Hello world";
+            TextOut(hdc, x, 100, text, wcslen(text));
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+    case WM_TIMER:
+        if (moveText){
+            x += 2;
+            //RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE);
+            InvalidateRect(hWnd, NULL, TRUE);
+            UpdateWindow(hWnd);
+         }
+
+        break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
+
     return 0;
 }
 
