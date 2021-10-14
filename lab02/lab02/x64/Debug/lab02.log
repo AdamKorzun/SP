@@ -1,0 +1,6 @@
+﻿  lab02.cpp
+C:\Users\User\Desktop\SP\lab02\lab02\lab02.cpp(196,35): warning C4244: '=': conversion from 'LRESULT' to 'WORD', possible loss of data
+C:\Users\User\Desktop\SP\lab02\lab02\lab02.cpp(210,34): warning C4244: '=': conversion from 'LRESULT' to 'INT', possible loss of data
+C:\Users\User\Desktop\SP\lab02\lab02\lab02.cpp(221,34): warning C4244: '=': conversion from 'LRESULT' to 'INT', possible loss of data
+C:\Users\User\Desktop\SP\lab02\lab02\lab02.cpp(225,34): warning C4244: '=': conversion from 'LRESULT' to 'INT', possible loss of data
+  lab02.vcxproj -> C:\Users\User\Desktop\SP\lab02\x64\Debug\lab02.exe
