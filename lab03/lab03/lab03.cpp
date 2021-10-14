@@ -177,7 +177,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         hFrame2 = (HBITMAP)LoadImage(hInst, L"Frames/frame2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
         hFrame3 = (HBITMAP)LoadImage(hInst, L"Frames/frame3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
         hFrame4 = (HBITMAP)LoadImage(hInst, L"Frames/frame4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        //OutputDebugString((LPCWSTR));
+        //OutputDebugString((LPCW STR));
 
         break;
 
