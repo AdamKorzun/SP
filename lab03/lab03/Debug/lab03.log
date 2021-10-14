@@ -1,2 +1,3 @@
 ﻿  lab03.cpp
+C:\Users\User\Desktop\SP\lab03\lab03\lab03.cpp(157,18): warning C4101: 'rt': unreferenced local variable
   lab03.vcxproj -> C:\Users\User\Desktop\SP\lab03\Debug\lab03.exe

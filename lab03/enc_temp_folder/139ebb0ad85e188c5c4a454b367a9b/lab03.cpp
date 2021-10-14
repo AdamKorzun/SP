@@ -23,8 +23,6 @@ HBITMAP hFrame3 = NULL;
 HBITMAP hFrame4 = NULL;
 POINT pt;
 
-INT currentX = 0;
-INT currentY = 0;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
