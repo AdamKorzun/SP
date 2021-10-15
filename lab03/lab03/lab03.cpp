@@ -17,15 +17,19 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-HBITMAP hFrame1 = NULL;
-HBITMAP hFrame2 = NULL;
-HBITMAP hFrame3 = NULL;
-HBITMAP hFrame4 = NULL;
+//HBITMAP hFrame1 = NULL;
+//HBITMAP hFrame2 = NULL;
+//HBITMAP hFrame3 = NULL;
+//HBITMAP hFrame4 = NULL;
+
+HBITMAP* hFrames = new HBITMAP[4];
 POINT pt;
 
 INT currentX = 0;
 INT currentY = 0;
 
+INT frameIndex;
+BOOL moving = false;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -113,7 +117,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
-   SetTimer(hWnd, 100, 100, NULL);
+   SetTimer(hWnd, 100, 500, NULL);
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -154,31 +158,55 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         {
+            //PAINTSTRUCT     ps;
+            //HDC             hdc;
+            //RECT rt;
+            //hdc = BeginPaint(hWnd, &ps);
+            //MoveToEx(hdc, currentX, currentY, NULL);
+            ///*HBRUSH brush = CreatePatternBrush(hFrame1);
+            //GetWindowRect(hWnd, &rt);
+            //FillRect(hdc, &rt, brush);
+            //DeleteObject(brush);*/
+            //LineTo(hdc, pt.x, pt.y);
             PAINTSTRUCT     ps;
             HDC             hdc;
-            RECT rt;
-            hdc = BeginPaint(hWnd, &ps);
-            MoveToEx(hdc, currentX, currentY, NULL);
-            /*HBRUSH brush = CreatePatternBrush(hFrame1);
-            GetWindowRect(hWnd, &rt);
-            FillRect(hdc, &rt, brush);
-            DeleteObject(brush);*/
-            LineTo(hdc, pt.x, pt.y);
+            BITMAP          bitmap;
+            HDC             hdcMem;
+            HGDIOBJ         oldBitmap;
 
+            hdc = BeginPaint(hWnd, &ps);
+
+            hdcMem = CreateCompatibleDC(hdc);
+            oldBitmap = SelectObject(hdcMem, hFrames[frameIndex]);
+
+            GetObject(hFrames[frameIndex], sizeof(bitmap), &bitmap);
+            BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, hdcMem, currentX, currentY, SRCCOPY);
+
+            SelectObject(hdcMem, oldBitmap);
             ReleaseDC(hWnd, hdc);
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_TIMER:
-        break;
-    case WM_LBUTTONDOWN:
-        pt.x = LOWORD(lParam);
-        pt.y = HIWORD(lParam);
-        OutputDebugString(L"buttonDown");
-
+        frameIndex += 1;
+        if (frameIndex == 4) {
+            frameIndex = 0;
+        }
+        if (moving) {
+            if (currentX == pt.x && currentY == pt.y) {
+                moving = false;
+            }
+        }
         InvalidateRect(hWnd, NULL, TRUE);
         UpdateWindow(hWnd);
+        break;
+    case WM_LBUTTONDOWN:
+        moving = !moving;
+        pt.x = LOWORD(lParam);
+        pt.y = HIWORD(lParam);
+        /*InvalidateRect(hWnd, NULL, TRUE);
+        UpdateWindow(hWnd);*/
 
         break;
     case WM_DESTROY:
@@ -186,10 +214,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CREATE:
         //auto hShadowDC = CreateCompatibleDC(NULL);
-        hFrame1 = (HBITMAP)LoadImage(hInst, L"Frames/frame1.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-        hFrame2 = (HBITMAP)LoadImage(hInst, L"Frames/frame2.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-        hFrame3 = (HBITMAP)LoadImage(hInst, L"Frames/frame3.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-        hFrame4 = (HBITMAP)LoadImage(hInst, L"Frames/frame4.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+       
+        hFrames[0] = (HBITMAP)LoadImage(hInst, L"Frames/frame1.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrames[1] = (HBITMAP)LoadImage(hInst, L"Frames/frame2.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrames[2] = (HBITMAP)LoadImage(hInst, L"Frames/frame3.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrames[3] = (HBITMAP)LoadImage(hInst, L"Frames/frame4.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
         InvalidateRect(hWnd, NULL, TRUE);
         UpdateWindow(hWnd);
         break;
