@@ -158,7 +158,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             HDC             hdc;
             RECT rt;
             hdc = BeginPaint(hWnd, &ps);
-
+            MoveToEx(hdc, currentX, currentY, NULL);
             /*HBRUSH brush = CreatePatternBrush(hFrame1);
             GetWindowRect(hWnd, &rt);
             FillRect(hdc, &rt, brush);
@@ -173,7 +173,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_TIMER:
         break;
     case WM_LBUTTONDOWN:
-        //UINT button = GET_LBUTTON_para(wParam);
         pt.x = LOWORD(lParam);
         pt.y = HIWORD(lParam);
         OutputDebugString(L"buttonDown");
@@ -187,14 +186,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CREATE:
         //auto hShadowDC = CreateCompatibleDC(NULL);
-        hFrame1 = (HBITMAP)LoadImage(hInst, L"C:\\Users\\User\\Desktop\\SP\\lab03\\lab03\\Frames\\frame1.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-        hFrame2 = (HBITMAP)LoadImage(hInst, L"Frames/frame2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        hFrame3 = (HBITMAP)LoadImage(hInst, L"Frames/frame3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        hFrame4 = (HBITMAP)LoadImage(hInst, L"Frames/frame4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        //InvalidateRect(hWnd, NULL, TRUE);
-        //UpdateWindow(hWnd);
-        //OutputDebugString((LPCW STR));
-
+        hFrame1 = (HBITMAP)LoadImage(hInst, L"Frames/frame1.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrame2 = (HBITMAP)LoadImage(hInst, L"Frames/frame2.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrame3 = (HBITMAP)LoadImage(hInst, L"Frames/frame3.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrame4 = (HBITMAP)LoadImage(hInst, L"Frames/frame4.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        InvalidateRect(hWnd, NULL, TRUE);
+        UpdateWindow(hWnd);
         break;
 
     default:
