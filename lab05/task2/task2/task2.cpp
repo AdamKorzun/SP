@@ -17,6 +17,13 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+HWND hRhombusButton;
+HWND hSqareButton;
+HWND hCircleButton;
+HWND hStarButton;
+
+DWORD color = RGB(0, 0, 0);
+BOOL isChecked = false;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -123,6 +130,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static RECT rt;
     switch (message)
     {
     case WM_COMMAND:
@@ -142,10 +150,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_CREATE:
+        hRhombusButton = CreateWindow(L"button", L"Rhombus", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,
+            0, 0, 100, 50, hWnd, (HMENU)ID_RHOMBUSBUTTON, hInst, NULL);
+        hSqareButton = CreateWindow(L"button", L"Sqaure", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+            0, 50, 100, 50, hWnd, (HMENU)ID_SQUAREBUTTON, hInst, NULL);
+        hCircleButton = CreateWindow(L"button", L"Circle", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+            0, 100, 100, 50, hWnd, (HMENU)ID_CIRCLEBUTTON, hInst, NULL);
+        hStarButton = CreateWindow(L"button", L"Star", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+            0, 150, 100, 50, hWnd, (HMENU)ID_STARBUTTON, hInst, NULL);
+        GetWindowRect(hWnd, &rt);
+        rt.top = 0;
+        rt.left = 100;
+        break;
+    case WM_COPYDATA:
+        break;
+    case WM_NCLBUTTONDBLCLK:
+        if (isChecked) {
+            ;
+        }
+        break;
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
+            FillRect(hdc, &rt, CreateSolidBrush(RGB(255, 188, 0)));
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }

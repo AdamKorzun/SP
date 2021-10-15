@@ -15,6 +15,11 @@
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
+#define ID_RHOMBUSBUTTON		404
+#define ID_SQUAREBUTTON			405
+#define ID_CIRCLEBUTTON			406
+#define ID_STARBUTTON			407
+
 #endif
 // Next default values for new objects
 //
