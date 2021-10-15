@@ -3,7 +3,7 @@
 
 #include "framework.h"
 #include "lab03.h"
-
+#include <math.h>
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -180,7 +180,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             oldBitmap = SelectObject(hdcMem, hFrames[frameIndex]);
 
             GetObject(hFrames[frameIndex], sizeof(bitmap), &bitmap);
-            BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, hdcMem, currentX, currentY, SRCCOPY);
+            BitBlt(hdc, currentX, currentY, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
 
             SelectObject(hdcMem, oldBitmap);
             ReleaseDC(hWnd, hdc);
@@ -193,10 +193,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (frameIndex == 4) {
             frameIndex = 0;
         }
+
         if (moving) {
             if (currentX == pt.x && currentY == pt.y) {
                 moving = false;
             }
+
+            int hypLen = sqrt(pow((pt.x - currentX), 2) + pow((pt.y - currentY), 2));
+
+            double sinVal = (double)(pt.y - currentY) / (double)hypLen;
+
+            double cosVal = (double)(pt.x - currentX) / (double)hypLen;
+
+            currentX += 10 * cosVal;
+            currentY += 10 * sinVal;
+
         }
         InvalidateRect(hWnd, NULL, TRUE);
         UpdateWindow(hWnd);
