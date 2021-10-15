@@ -117,6 +117,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    return TRUE;
 }
+typedef struct drawingParams {
+    COLORREF color;
+    BOOL draw;
+}DrParam;
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -131,6 +135,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static RECT rt;
+    PCOPYDATASTRUCT ds;
+    static DrParam dp;
     switch (message)
     {
     case WM_COMMAND:
@@ -164,10 +170,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         rt.left = 100;
         break;
     case WM_COPYDATA:
-        break;
+    {
+        ds = (PCOPYDATASTRUCT)lParam;
+        dp = *(drawingParams*)(ds->lpData);
+        if (dp.draw)
+            InvalidateRect(hWnd, &rt, TRUE);
+    }
     case WM_NCLBUTTONDBLCLK:
         if (isChecked) {
-            ;
+            if (dp.draw) {
+                static HDC hdc = GetWindowDC(hWnd);
+            }
         }
         break;
     case WM_PAINT:
@@ -175,6 +188,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             FillRect(hdc, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+            
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }

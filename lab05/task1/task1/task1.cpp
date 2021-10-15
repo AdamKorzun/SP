@@ -21,7 +21,7 @@ HWND hRadioButtonGreen;
 HWND hRadioButtonRed;
 HWND hRadioButtonBlue;
 HWND hDrawCheckbox;
-
+HWND hSecondWindow;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -68,7 +68,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //  PURPOSE: Registers the window class.
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
-{
+{   
     WNDCLASSEXW wcex;
 
     wcex.cbSize = sizeof(WNDCLASSEX);
@@ -109,7 +109,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
-
+   SetTimer(hWnd, 600, 1000, NULL);
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -126,8 +126,21 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+typedef struct drawingParams {
+    COLORREF  color;
+    BOOL draw;
+}DrParams;
+void sSendMessage(DrParams &params, COPYDATASTRUCT messageStruct, HWND hWnd) {
+    messageStruct.cbData = sizeof(params);
+    messageStruct.dwData = 1;
+    messageStruct.lpData = &params;
+    SendMessage(hSecondWindow, WM_COPYDATA, (WPARAM)hWnd, (LPARAM)(LPVOID)&messageStruct);
+}
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    DrParams params;
+    BOOL locDraw;
+    static COPYDATASTRUCT messageStruct;
     switch (message)
     {
     case WM_COMMAND:
@@ -142,13 +155,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
+            case ID_RADIORED:
+                params.color = 0x000000FF;
+                sSendMessage(params, messageStruct, hWnd);
+                break;
+            case ID_RADIOGREEN:
+                params.color = 0x0000FF00;
+                sSendMessage(params, messageStruct, hWnd);
+            case ID_RADIOBLUE:
+                params.color = 0x00FF0000;
+                sSendMessage(params, messageStruct, hWnd);
+            case ID_DRAWCHECKBOX:
+                if (SendMessage(hDrawCheckbox, BM_GETCHECK, 0, 0L) == BST_CHECKED) {
+                    locDraw = true;
+                }
+                else {
+                    locDraw = false;
+                }
+                params.draw = locDraw;
+                sSendMessage(params, messageStruct, hWnd);
+                break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
         }
         break;
     case WM_CREATE:
-       
         hRadioButtonRed = CreateWindow(L"button", L"Red", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,
             0, 0, 100, 50, hWnd, (HMENU)ID_RADIORED, hInst, NULL);
         hRadioButtonBlue = CreateWindow(L"button", L"Blue", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
@@ -166,6 +198,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EndPaint(hWnd, &ps);
         }
         break;
+    case WM_TIMER:
+        if (!hSecondWindow) {
+            OutputDebugString(L"not found\n");
+            hSecondWindow = FindWindow(NULL, L"task2");
+        }
+        break;
+   
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
