@@ -1,20 +1,23 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by lab03.rc
+// Used by lab04.rc
 
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_LAB03_DIALOG	102
+#define IDD_LAB04_DIALOG	102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
-#define IDI_LAB03			107
+#define IDI_LAB04			107
 #define IDI_SMALL				108
-#define IDC_LAB03			109
+#define IDC_LAB04			109
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
+#define ID_TIMER1				421
+#define ID_TIMER2				422
+
 #endif
 // Next default values for new objects
 //

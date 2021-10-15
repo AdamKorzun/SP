@@ -1,0 +1,5 @@
+﻿  lab04.cpp
+C:\Users\User\Desktop\SP\lab04\lab04\lab04.cpp(213,28): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Desktop\SP\lab04\lab04\lab04.cpp(219,40): warning C4244: '+=': conversion from 'double' to 'INT', possible loss of data
+C:\Users\User\Desktop\SP\lab04\lab04\lab04.cpp(220,40): warning C4244: '+=': conversion from 'double' to 'INT', possible loss of data
+  lab04.vcxproj -> C:\Users\User\Desktop\SP\lab04\Debug\lab04.exe

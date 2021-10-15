@@ -1,8 +1,9 @@
-// lab03.cpp : Defines the entry point for the application.
+// lab04.cpp : Defines the entry point for the application.
 //
 
 #include "framework.h"
-#include "lab03.h"
+#include "lab04.h"
+
 #include <math.h>
 #define MAX_LOADSTRING 100
 
@@ -31,9 +32,9 @@ INT currentY = 0;
 INT frameIndex;
 BOOL moving = false;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR    lpCmdLine,
+    _In_ int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -42,16 +43,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_LAB03, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_LAB04, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
     // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
+    if (!InitInstance(hInstance, nCmdShow))
     {
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LAB03));
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LAB04));
 
     MSG msg;
 
@@ -65,7 +66,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
-    return (int) msg.wParam;
+    return (int)msg.wParam;
 }
 
 
@@ -81,17 +82,17 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LAB03));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_LAB03);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LAB04));
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_LAB04);
+    wcex.lpszClassName = szWindowClass;
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
     return RegisterClassExW(&wcex);
 }
@@ -108,20 +109,22 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // Store instance handle in our global variable
+    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-   SetTimer(hWnd, 100, 500, NULL);
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+    if (!hWnd)
+    {
+        return FALSE;
+    }
+    SetTimer(hWnd, ID_TIMER1, 500, NULL);
+    SetTimer(hWnd, ID_TIMER2, 16, NULL);
 
-   return TRUE;
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
+
+    return TRUE;
 }
 
 //
@@ -138,79 +141,93 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-  
+
     case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+        // Parse the menu selections:
+        switch (wmId)
         {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
-        break;
+    }
+    break;
     case WM_PAINT:
-        {
-            //PAINTSTRUCT     ps;
-            //HDC             hdc;
-            //RECT rt;
-            //hdc = BeginPaint(hWnd, &ps);
-            //MoveToEx(hdc, currentX, currentY, NULL);
-            ///*HBRUSH brush = CreatePatternBrush(hFrame1);
-            //GetWindowRect(hWnd, &rt);
-            //FillRect(hdc, &rt, brush);
-            //DeleteObject(brush);*/
-            //LineTo(hdc, pt.x, pt.y);
-            PAINTSTRUCT     ps;
-            HDC             hdc;
-            BITMAP          bitmap;
-            HDC             hdcMem;
-            HGDIOBJ         oldBitmap;
+    {
+        //PAINTSTRUCT     ps;
+        //HDC             hdc;
+        //RECT rt;
+        //hdc = BeginPaint(hWnd, &ps);
+        //MoveToEx(hdc, currentX, currentY, NULL);
+        ///*HBRUSH brush = CreatePatternBrush(hFrame1);
+        //GetWindowRect(hWnd, &rt);
+        //FillRect(hdc, &rt, brush);
+        //DeleteObject(brush);*/
+        //LineTo(hdc, pt.x, pt.y);
+        PAINTSTRUCT     ps;
+        HDC             hdc;
+        BITMAP          bitmap;
+        HDC             hdcMem;
+        HGDIOBJ         oldBitmap;
 
-            hdc = BeginPaint(hWnd, &ps);
+        hdc = BeginPaint(hWnd, &ps);
 
-            hdcMem = CreateCompatibleDC(hdc);
-            oldBitmap = SelectObject(hdcMem, hFrames[frameIndex]);
+        hdcMem = CreateCompatibleDC(hdc);
+        oldBitmap = SelectObject(hdcMem, hFrames[frameIndex]);
 
-            GetObject(hFrames[frameIndex], sizeof(bitmap), &bitmap);
-            BitBlt(hdc, currentX, currentY, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
+        GetObject(hFrames[frameIndex], sizeof(bitmap), &bitmap);
+        BitBlt(hdc, currentX, currentY, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
 
-            SelectObject(hdcMem, oldBitmap);
-            ReleaseDC(hWnd, hdc);
+        SelectObject(hdcMem, oldBitmap);
+        ReleaseDC(hWnd, hdc);
 
-            EndPaint(hWnd, &ps);
-        }
-        break;
+        EndPaint(hWnd, &ps);
+    }
+    break;
     case WM_TIMER:
-        frameIndex += 1;
-        if (frameIndex == 4) {
-            frameIndex = 0;
-        }
-
-        if (moving) {
-            if (currentX == pt.x && currentY == pt.y) {
-                moving = false;
+        switch (wParam)
+        {
+        case ID_TIMER1:
+            frameIndex += 1;
+            if (frameIndex == 4) {
+                frameIndex = 0;
             }
+            InvalidateRect(hWnd, NULL, TRUE);
+            UpdateWindow(hWnd);
+            break;
 
-            int hypLen = sqrt(pow((pt.x - currentX), 2) + pow((pt.y - currentY), 2));
+        case ID_TIMER2:
+            if (moving) {
+                if (currentX == pt.x && currentY == pt.y) {
+                    moving = false;
+                    break;
+                }
 
-            double sinVal = (double)(pt.y - currentY) / (double)hypLen;
+                int hypLen = sqrt(pow((pt.x - currentX), 2) + pow((pt.y - currentY), 2));
 
-            double cosVal = (double)(pt.x - currentX) / (double)hypLen;
+                double sinVal = (double)(pt.y - currentY) / (double)hypLen;
 
-            currentX += 10 * cosVal;
-            currentY += 10 * sinVal;
+                double cosVal = (double)(pt.x - currentX) / (double)hypLen;
 
+                currentX += 10 * cosVal;
+                currentY += 10 * sinVal;
+                InvalidateRect(hWnd, NULL, TRUE);
+                UpdateWindow(hWnd);
+            }
+            break;
         }
-        InvalidateRect(hWnd, NULL, TRUE);
-        UpdateWindow(hWnd);
+
+       
+
+       
+        
         break;
     case WM_LBUTTONDOWN:
         moving = !moving;
@@ -225,7 +242,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CREATE:
         //auto hShadowDC = CreateCompatibleDC(NULL);
-       
+
         hFrames[0] = (HBITMAP)LoadImage(hInst, L"Frames/frame1.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
         hFrames[1] = (HBITMAP)LoadImage(hInst, L"Frames/frame2.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
         hFrames[2] = (HBITMAP)LoadImage(hInst, L"Frames/frame3.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
