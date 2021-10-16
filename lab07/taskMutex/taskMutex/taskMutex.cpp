@@ -114,7 +114,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    return TRUE;
 }
-enum timeEnum
+enum drawEnum
 {
     House = 2,
     Tree = 3,
@@ -217,14 +217,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         GetWindowRect(hWnd, &rt);
         rt.top = 0;
         rt.left = 0;
-        hMutex = CreateMutex(NULL, FALSE, L"Mutex");
+        hMutex = CreateMutex(NULL, FALSE, NULL);
 
         drawingParams* drp1 = new drawingParams{ hWnd, rt, House };
         drawingParams* drp2 = new drawingParams{ hWnd, rt, Tree };
         drawingParams* drp3 = new drawingParams{ hWnd, rt, Rhombus };
-        threads[1] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp1, NULL, NULL);
-        threads[2] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp2, NULL, NULL);
-        threads[3] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp3, NULL, NULL);
+        threads[0] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp1, NULL, NULL);
+        threads[1] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp2, NULL, NULL);
+        threads[2] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp3, NULL, NULL);
 
 
         break;

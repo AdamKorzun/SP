@@ -17,6 +17,8 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+HANDLE hSemaphore;
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -121,8 +123,72 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+enum drawingEnum
+{
+    House = 2,
+    Tree = 3,
+    Rhombus = 4
+};
+struct drawingParams
+{
+    HWND hWnd;
+    RECT rt;
+    INT option;
+};
+
+DWORD WINAPI ThreadFunc(LPVOID lpParam) {
+    drawingParams* drp = (drawingParams*)lpParam;
+    INT option = drp->option;
+    RECT rt = drp->rt;
+    DWORD dwWaitResult;
+    INT midX = (rt.right - rt.left) / 2;
+    INT midY = (rt.bottom - rt.top) / 2;
+    while (true) {
+        dwWaitResult = WaitForSingleObject(hSemaphore, INFINITE);
+        if (dwWaitResult == WAIT_OBJECT_0) {
+            HDC hDC = GetDC(drp->hWnd);
+
+            if (option == House) {
+                OutputDebugString(L"House\n");
+                FillRect(hDC, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+                SelectObject(hDC, GetStockObject(DC_BRUSH));
+                SetDCBrushColor(hDC, 0x000161FF);
+                POINT drawingPoints[] = { { midX , midY - 70 }, { midX - 40 , midY - 40}, { midX - 40, midY + 40},
+                    {midX + 40 , midY + 40} , { midX + 40 , midY - 40 }, { midX , midY - 70 } };
+                Polygon(hDC, drawingPoints, 6);
+            }
+            else if (option == Tree) {
+                OutputDebugString(L"Tree\n");
+                FillRect(hDC, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+
+                SelectObject(hDC, GetStockObject(DC_BRUSH));
+                SetDCBrushColor(hDC, 0x00035fA0);
+                POINT drawingPoints[] = { { midX - 10 , midY }, { midX - 20 , midY + 50}, { midX + 20, midY + 50} , {midX + 10 , midY } , { midX - 10 , midY } };
+                Polygon(hDC, drawingPoints, 5);
+                SetDCBrushColor(hDC, 0x002A9628);
+                Ellipse(hDC, midX - 40, midY - 40, midX + 40, midY + 40);
+
+            }
+            else if (option == Rhombus) {
+                OutputDebugString(L"Rhombus\n");
+                FillRect(hDC, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+                SelectObject(hDC, GetStockObject(DC_BRUSH));
+                SetDCBrushColor(hDC, 0x00C63018);
+                POINT drawingPoints[] = { { midX , midY - 50 }, { midX - 50 , midY}, { midX, midY + 50} , {midX + 50 , midY } , { midX , midY - 50 } };
+                Polygon(hDC, drawingPoints, 5);
+            }
+            ReleaseDC(drp->hWnd, hDC);
+        }
+        Sleep(1000);
+        ReleaseSemaphore(hSemaphore, 1, NULL);
+
+    }
+    return 0;
+}
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static RECT rt;
+    static HANDLE threads[3];
     switch (message)
     {
     case WM_COMMAND:
@@ -134,6 +200,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
+           
+                
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
@@ -142,15 +210,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_CREATE:
+    {
+        GetWindowRect(hWnd, &rt);
+        rt.top = 0;
+        rt.left = 0;
+        hSemaphore = CreateSemaphore(NULL, 1, 1, NULL);
+        drawingParams* drp1 = new drawingParams{ hWnd, rt, House };
+        drawingParams* drp2 = new drawingParams{ hWnd, rt, Tree };
+        drawingParams* drp3 = new drawingParams{ hWnd, rt, Rhombus };
+        threads[0] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp1, NULL, NULL);
+        threads[1] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp2, NULL, NULL);
+        threads[2] = CreateThread(NULL, 0, ThreadFunc, (LPVOID*)drp3, NULL, NULL);
+        break;
+    }
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
+            FillRect(hdc, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
+        WaitForMultipleObjects(3, threads, TRUE, INFINITE);
+
         PostQuitMessage(0);
         break;
     default:
