@@ -136,9 +136,10 @@ void sSendMessage(DrParams &params, COPYDATASTRUCT messageStruct, HWND hWnd) {
     messageStruct.lpData = &params;
     SendMessage(hSecondWindow, WM_COPYDATA, (WPARAM)hWnd, (LPARAM)(LPVOID)&messageStruct);
 }
+DrParams params;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    DrParams params;
     BOOL locDraw;
     static COPYDATASTRUCT messageStruct;
     switch (message)
@@ -162,9 +163,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case ID_RADIOGREEN:
                 params.color = 0x0000FF00;
                 sSendMessage(params, messageStruct, hWnd);
+                break;
             case ID_RADIOBLUE:
                 params.color = 0x00FF0000;
                 sSendMessage(params, messageStruct, hWnd);
+                break;
             case ID_DRAWCHECKBOX:
                 if (SendMessage(hDrawCheckbox, BM_GETCHECK, 0, 0L) == BST_CHECKED) {
                     locDraw = true;

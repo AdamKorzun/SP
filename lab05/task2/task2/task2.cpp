@@ -3,7 +3,7 @@
 
 #include "framework.h"
 #include "task2.h"
-
+#include <math.h>
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -22,8 +22,6 @@ HWND hSqareButton;
 HWND hCircleButton;
 HWND hStarButton;
 
-DWORD color = RGB(0, 0, 0);
-BOOL isChecked = false;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -132,11 +130,21 @@ typedef struct drawingParams {
 //  WM_DESTROY  - post a quit message and return
 //
 //
+enum Shapes
+{
+    Rhombus=2,
+    Square=3,
+    Circle=4,
+    Star=5
+};     
+DrParam dp;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static RECT rt;
-    PCOPYDATASTRUCT ds;
-    static DrParam dp;
+    static PCOPYDATASTRUCT ds;
+    static POINT pt;
+    static INT shape = 0;
     switch (message)
     {
     case WM_COMMAND:
@@ -150,6 +158,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
+                break;
+            case ID_RHOMBUSBUTTON:
+                shape = Rhombus;
+                break;
+            case ID_SQUAREBUTTON:
+                shape = Square;
+                break;
+            case ID_CIRCLEBUTTON:
+                shape = Circle;
+                break;
+            case ID_STARBUTTON:
+                shape = Star;
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -176,11 +196,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (dp.draw)
             InvalidateRect(hWnd, &rt, TRUE);
     }
-    case WM_NCLBUTTONDBLCLK:
-        if (isChecked) {
-            if (dp.draw) {
-                static HDC hdc = GetWindowDC(hWnd);
-            }
+    case WM_LBUTTONDOWN:
+        if (dp.draw) {
+            pt.x = LOWORD(lParam);
+            pt.y = HIWORD(lParam);
+            
+            InvalidateRect(hWnd, &rt, TRUE);
         }
         break;
     case WM_PAINT:
@@ -188,6 +209,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             FillRect(hdc, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+            if (dp.draw) {
+                INT x = (int)pt.x;
+                INT y = (int)pt.y;
+                //RGB(GetRValue(dp.color), GetGValue(dp.color), GetBValue(dp.color))
+                SelectObject(hdc, GetStockObject(DC_BRUSH));
+                SetDCBrushColor(hdc, dp.color);
+                switch (shape)
+                {
+                case Rhombus:
+                {
+                    POINT drawingPoints[] = { { x , y - 50 }, { x - 50 , y}, { x, y + 50} , { x + 50 , y } , { x , y - 50 } };
+                    Polygon(hdc, drawingPoints, 5);
+                    break;
+                }
+
+                case Square:
+                    Rectangle(hdc, x - 50, y - 50, x + 50, y + 50);
+                    break;
+                case Circle:
+                    Ellipse(hdc, x - 50, y - 50, x + 50, y + 50);
+                    break;
+                case Star:
+                {
+                    INT r = 50;
+                    POINT pointArray[11] = { { x - 50, y - 10 }, { x - 15, y - 10 }, { x, y - 50 }, { x + 15, y - 10 }, { x + 50, y - 10 },
+                    { x + 20, y + 10},{ x + 40, y + 50 }, { x, y + 25 }, { x - 40, y + 50 }, { x - 20, y + 10 }, { x - 50, y - 10 } };
+
+                    Polygon(hdc, pointArray, 11);
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
             
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
