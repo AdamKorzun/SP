@@ -1,3 +1,2 @@
 ﻿  taskMutex.cpp
-C:\Users\User\Desktop\SP\lab07\taskMutex\taskMutex\taskMutex.cpp(130,16): warning C4101: 'st': unreferenced local variable
   taskMutex.vcxproj -> C:\Users\User\Desktop\SP\lab07\taskMutex\Debug\taskMutex.exe

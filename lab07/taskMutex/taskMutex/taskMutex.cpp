@@ -127,22 +127,51 @@ struct drawingParams
     INT option;
 };
 DWORD WINAPI ThreadFunc(LPVOID lpParam) {
-    SYSTEMTIME st;
     drawingParams* drp = (drawingParams*)lpParam;
     INT option = drp->option;
+    RECT rt = drp->rt;
     DWORD dwWaitResult;
+    INT midX = (rt.right - rt.left) / 2;
+    INT midY = (rt.bottom - rt.top) / 2;
     while (true) {
         dwWaitResult = WaitForSingleObject(hMutex,INFINITE);
-        if (option == House) {
-            ;
-        }
-        else if (option == Tree) {
-            ;
-        }
-        else if (option == Rhombus) {
-            ;
+        if (dwWaitResult == WAIT_OBJECT_0) {
+            HDC hDC = GetDC(drp->hWnd);
+
+            if (option == House) {
+                OutputDebugString(L"House\n");
+                FillRect(hDC, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+                SelectObject(hDC, GetStockObject(DC_BRUSH));
+                SetDCBrushColor(hDC, 0x000161FF);
+                POINT drawingPoints[] = { { midX , midY - 70 }, { midX - 40 , midY - 40}, { midX - 40, midY + 40},
+                    {midX + 40 , midY + 40} , { midX + 40 , midY - 40 }, { midX , midY - 70 } };
+                Polygon(hDC, drawingPoints, 6);
+            }
+            else if (option == Tree) {
+                OutputDebugString(L"Tree\n");
+                FillRect(hDC, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+               
+                SelectObject(hDC, GetStockObject(DC_BRUSH));
+                SetDCBrushColor(hDC, 0x00035fA0);
+                POINT drawingPoints[] = { { midX - 10 , midY }, { midX - 20 , midY + 50}, { midX + 20, midY  + 50} , {midX + 10 , midY } , { midX - 10 , midY } };
+                Polygon(hDC, drawingPoints, 5);
+                SetDCBrushColor(hDC, 0x002A9628);
+                Ellipse(hDC, midX - 40, midY - 40, midX + 40, midY + 40);
+
+            }
+            else if (option == Rhombus) {
+                OutputDebugString(L"Rhombus\n");
+                FillRect(hDC, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+                SelectObject(hDC, GetStockObject(DC_BRUSH));
+                SetDCBrushColor(hDC, 0x00C63018);
+                POINT drawingPoints[] = { { midX , midY - 50 }, { midX - 50 , midY}, { midX, midY + 50} , {midX  + 50 , midY } , { midX , midY - 50 } };
+                Polygon(hDC, drawingPoints, 5);
+            }
+            ReleaseDC(drp->hWnd, hDC);
         }
         Sleep(1000);
+        ReleaseMutex(hMutex);
+
     }
     return 0;
 }
