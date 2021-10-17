@@ -104,7 +104,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
-
+   
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
@@ -113,45 +113,24 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
   
-   hList1 = CreateWindow(L"listbox", NULL,
-       WS_CHILD | WS_VISIBLE | LBS_STANDARD |
-       LBS_WANTKEYBOARDINPUT,
-       10, 10, 200, 400,
-       hWnd, (HMENU)ID_LISTBOX_1, hInst, NULL);
-   hList2 = CreateWindow(L"listbox", NULL,
-       WS_CHILD | WS_VISIBLE | LBS_STANDARD |
-       LBS_WANTKEYBOARDINPUT,
-       220, 10, 200, 400,
-       hWnd, (HMENU)ID_LISTBOX_2, hInst, NULL);
+   hList1 = CreateWindow(L"listbox", NULL, WS_CHILD | WS_VISIBLE | LBS_STANDARD |  LBS_WANTKEYBOARDINPUT,
+       10, 10, 200, 400,hWnd, (HMENU)ID_LISTBOX_1, hInst, NULL);
+   hList2 = CreateWindow(L"listbox", NULL, WS_CHILD | WS_VISIBLE | LBS_STANDARD |LBS_WANTKEYBOARDINPUT,
+       220, 10, 200, 400, hWnd, (HMENU)ID_LISTBOX_2, hInst, NULL);
 
-   hEdit = CreateWindow(L"edit", NULL,
-       WS_CHILD | WS_VISIBLE | WS_BORDER |
-       ES_LEFT,
-       450, 10, 100, 40,
-       hWnd, (HMENU)ID_EDIT, hInst, NULL);
-   hAddButton = CreateWindow(L"button", L"Add",
-       WS_CHILD | WS_VISIBLE |
-       BS_PUSHBUTTON,
-       450, 60, 100, 25,
-       hWnd, (HMENU)ID_ADD_BUTTON, hInst, NULL);
+   hEdit = CreateWindow(L"edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
+       450, 10, 100, 40, hWnd, (HMENU)ID_EDIT, hInst, NULL);
+   hAddButton = CreateWindow(L"button", L"Add",WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+       450, 60, 100, 25, hWnd, (HMENU)ID_ADD_BUTTON, hInst, NULL);
 
-   hClearButton = CreateWindow(L"button", L"Clear",
-       WS_CHILD | WS_VISIBLE |
-       BS_PUSHBUTTON,
-       450, 90, 100, 25,
-       hWnd, (HMENU)ID_CLEAR_BUTTON, hInst, NULL);
+   hClearButton = CreateWindow(L"button", L"Clear", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+       450, 90, 100, 25, hWnd, (HMENU)ID_CLEAR_BUTTON, hInst, NULL);
 
-   hToRightButton = CreateWindow(L"button", L"To Right",
-       WS_CHILD | WS_VISIBLE |
-       BS_PUSHBUTTON,
-       450, 120, 100, 25,
-       hWnd, (HMENU)ID_TORIGHT_BUTTON, hInst, NULL);
+   hToRightButton = CreateWindow(L"button", L"To Right", WS_CHILD | WS_VISIBLE |BS_PUSHBUTTON,
+       450, 120, 100, 25, hWnd, (HMENU)ID_TORIGHT_BUTTON, hInst, NULL);
 
-   hDeleteButton = CreateWindow(L"button", L"Delete",
-       WS_CHILD | WS_VISIBLE |
-       BS_PUSHBUTTON,
-       450, 150, 100, 25,
-       hWnd, (HMENU)ID_DELETE_BUTTON, hInst, NULL);
+   hDeleteButton = CreateWindow(L"button", L"Delete",WS_CHILD | WS_VISIBLE |BS_PUSHBUTTON,
+       450, 150, 100, 25, hWnd, (HMENU)ID_DELETE_BUTTON, hInst, NULL);
 
   
 
@@ -173,13 +152,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-   
+    static RECT rt;
 
     switch (message)
     {
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
+            INT pos;
+
             // Parse the menu selections:
             switch (wmId)
             {
@@ -205,7 +186,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SendMessage(hList2, LB_RESETCONTENT, 0, 0L);
                 break;
             case ID_TORIGHT_BUTTON:
-                INT pos;
 
                 pos = SendMessage(hList1, LB_GETCURSEL, 0, 0L);
                 if (pos == LB_ERR)
@@ -233,10 +213,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         }
         break;
+    case WM_CREATE:
+        GetWindowRect(hWnd, &rt);
+        rt.top = 0;
+        rt.left = 0;
+        break;
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
+            FillRect(hdc, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }
