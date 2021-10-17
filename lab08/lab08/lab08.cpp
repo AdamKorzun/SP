@@ -3,7 +3,9 @@
 
 #include "framework.h"
 #include "lab08.h"
-
+#include <TlHelp32.h>
+#include <windowsx.h>
+#include <psapi.h>
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -16,6 +18,11 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+PROCESSENTRY32 procs[1024];
+HWND hListBox1;
+HWND hListBox2;
+DWORD aProcesses[1024];
+HMENU hPopupMenu;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -110,7 +117,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    return TRUE;
 }
-
+#define ID_IDLE 10
+#define ID_NORMAL 11
+#define ID_HIGH 12
+#define ID_REAL_TIME 13
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -121,13 +131,82 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+void setPriority(DWORD priorityClass, HWND listBox) {
+    int itemId = SendMessage(listBox, LB_GETCURSEL, 0, NULL);
+    if (itemId != -1) {
+        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procs[itemId].th32ProcessID);
+        SetPriorityClass(hProcess, priorityClass);
+        CloseHandle(hProcess);
+    }
+}
+//void getProcesses(HWND listBox)
+//{
+//    DWORD cbNeeded, cProcesses;
+//    if (!EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded))
+//    {
+//        return;
+//    }
+//    cProcesses = cbNeeded / sizeof(DWORD);
+//    TCHAR szProcessName[1024] = TEXT("<unknown>");
+//    HMODULE hMod;
+//
+//    for (int i = 0; i < cProcesses; i++) {
+//        if (aProcesses[i] != 0) {
+//            HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, aProcesses[i]);
+//            EnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded);
+//            GetModuleBaseName(hProcess, hMod, szProcessName, 1024);
+//            OutputDebugString(szProcessName );
+//            /*if (EnumProcessModules(hProcess, &hMod, sizeof(hMod),&cbNeeded)) {
+//                GetModuleBaseName(hProcess, hMod, szProcessName, sizeof(szProcessName) / sizeof(TCHAR));
+//            }*/
+//            SendMessage(listBox, LB_ADDSTRING, 0, (LPARAM)szProcessName);
+//            CloseHandle(hProcess);
+//        }
+//
+//    }
+//}
+
+void getModules(DWORD pid, HWND listBox)
+{
+    HANDLE th = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
+    if (th != INVALID_HANDLE_VALUE)
+    {
+        MODULEENTRY32 mod;
+        mod.dwSize = sizeof(MODULEENTRY32);
+        Module32First(th, &mod);
+        do {
+            SendMessage(listBox, LB_ADDSTRING, 0, (LPARAM)mod.szModule);
+        } while (Module32Next(th, &mod));
+    }
+    CloseHandle(th);
+}
+void getProcesses(HWND listBox)
+{
+    int procCount = 0;
+    procs[0].dwSize = sizeof(PROCESSENTRY32);
+
+    HANDLE th = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    Process32First(th, &procs[0]);
+    while (Process32Next(th, &procs[procCount]))
+    {
+        procCount++;
+        procs[procCount].dwSize = sizeof(PROCESSENTRY32);
+    }
+    CloseHandle(th);
+    for (int i = 0; i < procCount; i++) {
+        SendMessage(listBox, LB_ADDSTRING, 0, (LPARAM)procs[i].szExeFile);
+    }
+}
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static RECT rt;
+
     switch (message)
     {
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
+            int wmEvent = HIWORD(wParam);
             // Parse the menu selections:
             switch (wmId)
             {
@@ -137,8 +216,58 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
+            case ID_LISTBOX1:
+                if (wmEvent == LBN_SELCHANGE)
+                {
+                    int itemId = SendMessage(hListBox1, LB_GETCURSEL, 0, NULL);
+                    if (itemId != -1) {
+                        SendMessage(hListBox2, LB_RESETCONTENT, 0, NULL);
+                        getModules(procs[itemId].th32ProcessID, hListBox2);
+                    }
+                }
+                break;
+            case ID_IDLE:
+                setPriority(IDLE_PRIORITY_CLASS, hListBox1);
+                break;
+            case ID_NORMAL:
+                setPriority(NORMAL_PRIORITY_CLASS, hListBox1);
+                break;
+            case ID_HIGH:
+                setPriority(HIGH_PRIORITY_CLASS, hListBox1);
+                break;
+            case ID_REAL_TIME:
+                setPriority(REALTIME_PRIORITY_CLASS, hListBox1);
+                break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
+            }
+        }
+        break;
+    case WM_CREATE:
+        GetWindowRect(hWnd, &rt);
+        rt.top = 0;
+        rt.left = 0;
+
+        hListBox1 = CreateWindow(L"listbox", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | LBS_NOTIFY,
+            0, 0, 300, 500, hWnd, (HMENU)ID_LISTBOX1, hInst, NULL);
+        hListBox2 = CreateWindow(L"listbox", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | LBS_NOTIFY,
+            320, 0, 300, 500, hWnd, (HMENU)ID_LISTBOX2, hInst, NULL);
+        getProcesses(hListBox1);
+        break;
+    case WM_CONTEXTMENU:
+        if ((HWND)wParam == hListBox1) {
+            int itemId = SendMessage(hListBox1, LB_GETCURSEL, 0, NULL);
+            if (itemId != -1) {
+                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procs[itemId].th32ProcessID);
+                int pC = GetPriorityClass(hProcess);
+                CloseHandle(hProcess);
+
+                hPopupMenu = CreatePopupMenu();
+                AppendMenu(hPopupMenu, pC == IDLE_PRIORITY_CLASS ? MF_CHECKED : MF_STRING, ID_IDLE, L"Idle");
+                AppendMenu(hPopupMenu, pC == NORMAL_PRIORITY_CLASS ? MF_CHECKED : MF_STRING, ID_NORMAL, L"Normal");
+                AppendMenu(hPopupMenu, pC == HIGH_PRIORITY_CLASS ? MF_CHECKED : MF_STRING, ID_HIGH, L"High");
+                AppendMenu(hPopupMenu, pC == REALTIME_PRIORITY_CLASS ? MF_CHECKED : MF_STRING, ID_REAL_TIME, L"RT");
+                TrackPopupMenu(hPopupMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, hWnd, NULL);
             }
         }
         break;
@@ -146,6 +275,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
+            FillRect(hdc, &rt, CreateSolidBrush(RGB(255, 188, 0)));
+
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }
