@@ -17,6 +17,10 @@
 #define IDC_STATIC				-1
 #define ID_LISTBOX1				401
 #define ID_LISTBOX2				402
+#define ID_IDLE					403
+#define ID_NORMAL				404
+#define ID_HIGH					405
+#define ID_REAL_TIME			406
 
 
 #endif

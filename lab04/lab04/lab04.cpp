@@ -218,6 +218,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 currentX += 10 * cosVal;
                 currentY += 10 * sinVal;
+                if (abs(currentX - pt.x) < 10 && abs(currentY - pt.y) < 10) {
+                    currentX = pt.x;
+                    currentY = pt.y;
+                }
                 InvalidateRect(hWnd, NULL, TRUE);
                 UpdateWindow(hWnd);
             }
@@ -243,10 +247,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
         //auto hShadowDC = CreateCompatibleDC(NULL);
 
-        hFrames[0] = (HBITMAP)LoadImage(hInst, L"Frames/frame1.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-        hFrames[1] = (HBITMAP)LoadImage(hInst, L"Frames/frame2.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-        hFrames[2] = (HBITMAP)LoadImage(hInst, L"Frames/frame3.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-        hFrames[3] = (HBITMAP)LoadImage(hInst, L"Frames/frame4.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrames[0] = (HBITMAP)LoadImage(hInst, L"C:/Users/User/Desktop/SP/lab04/lab04/Frames/frame1.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrames[1] = (HBITMAP)LoadImage(hInst, L"C:/Users/User/Desktop/SP/lab04/lab04/Frames/frame2.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrames[2] = (HBITMAP)LoadImage(hInst, L"C:/Users/User/Desktop/SP/lab04/lab04/Frames/frame3.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+        hFrames[3] = (HBITMAP)LoadImage(hInst, L"C:/Users/User/Desktop/SP/lab04/lab04/Frames/frame4.bmp", IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
         InvalidateRect(hWnd, NULL, TRUE);
         UpdateWindow(hWnd);
         break;

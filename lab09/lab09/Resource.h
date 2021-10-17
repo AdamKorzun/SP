@@ -13,6 +13,11 @@
 #define IDI_SMALL				108
 #define IDC_LAB09			109
 #define IDC_MYICON				2
+#define ID_LISTBOX1				400
+#define ID_SEARCHBUTTON			401
+#define ID_EDITFIELD			402
+
+
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #endif

@@ -173,7 +173,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case ID_ADD_BUTTON:
                 
                 WORD keyT;
-                TCHAR buffer[120];
+                TCÒÍ‡HAR buffer[120];
                 keyT = SendMessage(hEdit, EM_GETLINE, 0,
                     (LPARAM)(LPSTR)buffer);
 
